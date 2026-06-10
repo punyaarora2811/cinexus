@@ -1,0 +1,16 @@
+# Dataset — too large for GitHub
+data/
+*.csv
+*.tsv
+
+# Jupyter artifacts
+.ipynb_checkpoints/
+__pycache__/
+
+# Python env
+venv/
+.env
+
+# OS
+.DS_Store
+Thumbs.db
