@@ -11,6 +11,23 @@ __pycache__/
 venv/
 .env
 
+# Frontend — build output and dependencies
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+*.local
+*.log
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
 # OS
 .DS_Store
 Thumbs.db

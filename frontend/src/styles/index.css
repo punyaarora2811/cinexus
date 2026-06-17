@@ -1,0 +1,10 @@
+/**
+ * styles/index.css — Global stylesheet entry point
+ *
+ * Imports:
+ *   1. fonts.css    → Google Fonts (Bebas Neue for headings, Inter for body text)
+ *   2. tailwind.css → Tailwind CSS v4 utility classes
+ */
+
+@import './fonts.css';
+@import './tailwind.css';

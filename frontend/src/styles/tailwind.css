@@ -1,0 +1,9 @@
+/**
+ * tailwind.css — Tailwind CSS v4 configuration
+ *
+ * - Imports Tailwind with source(none) to disable auto-scanning
+ * - Explicitly scans all JS/JSX files in src/ for utility classes
+ */
+
+@import 'tailwindcss' source(none);
+@source '../**/*.{js,jsx}';
