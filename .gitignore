@@ -2,6 +2,7 @@
 data/
 *.csv
 *.tsv
+!data/50K_Movies_Cleaned.csv
 
 # Jupyter artifacts
 .ipynb_checkpoints/

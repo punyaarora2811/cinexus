@@ -43,7 +43,7 @@ cinexus/
 │   ├── package.json              # Frontend dependencies
 │   └── vite.config.js            # Vite configuration
 ├── data/
-│   └── 400K_Movies.csv           # TMDB 400k dataset (gitignored)
+│   └── 50K_Movies_Cleaned.csv    # Pre-cleaned, lightweight dataset
 ├── .gitignore
 ├── package.json                  # Root monorepo scripts
 ├── render.yaml                   # Render deployment blueprint
@@ -67,16 +67,9 @@ git clone https://github.com/punyaarora2811/cinexus.git
 cd cinexus
 ```
 
-### 2. Download the Dataset (Local Dev Only)
+### 2. Dataset
 
-> **Note:** If you're deploying to Render, skip this step — the dataset is downloaded automatically during the build.
-
-Download the TMDB 400k dataset from [Kaggle](https://www.kaggle.com/datasets/ggtejas/tmdb-imdb-merged-movies-dataset) and place it in the `data` directory:
-
-```bash
-# Ensure the structure looks like this:
-data/400K_Movies.csv
-```
+The repository already includes the `50K_Movies_Cleaned.csv` in the `data/` directory. It contains the top 50,000 highest-rated movies with pre-computed features for lightning-fast ML modeling. No extra downloads needed!
 
 ### 3. Backend Setup (FastAPI & ML)
 
@@ -110,12 +103,17 @@ The frontend will be available at `http://localhost:5173` (or similar, check ter
 
 ## 🧠 How the ML Pipeline Works
 
-1. **Data Preprocessing:** Cleans the TMDB dataset by handling missing values and dropping duplicates.
-2. **Feature Extraction:** Consolidates genres, keywords, cast (top 5), and directors into robust lists. Multi-word names are collapsed (e.g., `Tom Hanks` → `TomHanks`) to prevent false positive matches on shared first names.
-3. **Text Normalization:** Applies stemming to the movie overviews using NLTK so that word variations map to the same token.
+To run lightning-fast on the free tier, the pipeline is split into an offline preprocessing stage and a runtime inference stage:
+
+### 1. Offline Preprocessing (Already done)
+1. **Data Cleaning:** The raw 400K TMDB dataset is filtered to remove empty rows and kept only to the top 50,000 movies by rating to save memory.
+2. **Feature Extraction:** Genres, keywords, cast, and directors are merged into lists. Multi-word names are collapsed (e.g., `Tom Hanks` → `TomHanks`) to prevent false positive matches.
+3. **Text Normalization:** Applies Porter stemming to the movie overviews using NLTK so that word variations map to the same token.
 4. **Weighted Tagging:** Constructs a master "tag" string for each movie where directors and genres are weighted 3×, keywords 2×, and overview/cast 1×.
-5. **Vectorization:** Converts the tags into a numerical matrix using TF-IDF, effectively down-weighting common tokens and boosting rare discriminative ones.
-6. **Recommendation:** Computes the closest neighbors via Cosine Similarity utilizing the K-Nearest Neighbors (KNN) algorithm.
+
+### 2. Runtime (FastAPI Server)
+1. **Vectorization:** Upon startup, the backend instantly converts the pre-computed tags into a numerical matrix using TF-IDF (Term Frequency-Inverse Document Frequency).
+2. **Recommendation:** When you search for a movie, the server computes the closest neighbors via Cosine Similarity utilizing the K-Nearest Neighbors (KNN) algorithm and returns the top 10 results in milliseconds.
 
 ## 🚀 Deployment (Render)
 
@@ -130,14 +128,10 @@ Deploy the frontend and backend separately on [Render](https://render.com) — n
    | **Name** | `cinexus-backend` |
    | **Environment** | `Python 3` |
    | **Region** | Singapore (or closest to you) |
-   | **Build Command** | `pip install -r backend/requirements.txt && pip install kaggle && kaggle datasets download ggtejas/tmdb-imdb-merged-movies-dataset --unzip -p data && mv data/*.csv data/400K_Movies.csv` |
+   | **Build Command** | `pip install -r backend/requirements.txt` |
    | **Start Command** | `cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT` |
    | **Instance Type** | Free |
-3. Add the following environment variable:
-   | Key | Value |
-   |---|---|
-   | `KAGGLE_API_TOKEN` | Your Kaggle API token (starts with `KGAT_`) |
-4. Click **Create Web Service** and wait for the build to finish. Copy the live URL (e.g. `https://cinexus-backend-xxxx.onrender.com`).
+3. Click **Create Web Service** and wait for the build to finish. Copy the live URL (e.g. `https://cinexus-backend-xxxx.onrender.com`).
 
 ### 2. Frontend (Static Site)
 
@@ -154,8 +148,6 @@ Deploy the frontend and backend separately on [Render](https://render.com) — n
    | `VITE_API_URL` | The backend URL you copied above |
    | `VITE_TMDB_API_KEY` | Your TMDB API key |
 4. Click **Create Static Site**.
-
-> **Note:** The 279 MB dataset is `.gitignored` to comply with GitHub's file size limits. The build command automatically downloads it from Kaggle, so you never need to push it to Git.
 
 ## 📄 License
 
