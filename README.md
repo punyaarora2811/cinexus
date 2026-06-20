@@ -1,6 +1,7 @@
 <div align="center">
   <h1>🎬 Cinexus</h1>
   <p><strong>A dynamic, content-based movie recommendation engine built with React and Python.</strong></p>
+  <p>🚀 <strong><a href="https://cinexus-frontend.onrender.com">Live Demo</a></strong></p>
   
   [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](#)
   [![Vite](https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E)](#)

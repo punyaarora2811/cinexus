@@ -1,5 +1,4 @@
-# Dataset — too large for GitHub
-data/
+# Prevent accidentally pushing large datasets, but allow our clean file
 *.csv
 *.tsv
 !data/50K_Movies.csv
