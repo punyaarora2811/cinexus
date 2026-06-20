@@ -119,23 +119,43 @@ The frontend will be available at `http://localhost:5173` (or similar, check ter
 
 ## 🚀 Deployment (Render)
 
-This project includes a [`render.yaml`](render.yaml) blueprint for one-click deployment to [Render](https://render.com).
+Deploy the frontend and backend separately on [Render](https://render.com) — no credit card required.
 
-1. Push your code to GitHub.
-2. Sign in to Render and click **New > Blueprint**.
-3. Connect your repository — Render will automatically detect the blueprint and provision both services:
-   - **cinexus-backend** → Python Web Service
-   - **cinexus-frontend** → Static Site
-4. Add the following environment variable to the **cinexus-backend** service:
-   | Key | Value | Purpose |
-   |---|---|---|
-   | `KAGGLE_API_TOKEN` | Your Kaggle API token | Allows the build to download the 400K dataset automatically |
-5. Add the following environment variable to the **cinexus-frontend** service:
-   | Key | Value | Purpose |
-   |---|---|---|
-   | `VITE_TMDB_API_KEY` | Your TMDB API key | Required for fetching popular movies and poster images |
+### 1. Backend (Web Service)
 
-> **Note:** The 279 MB dataset is `.gitignored` to comply with GitHub's file size limits. The `render.yaml` build command automatically downloads it from Kaggle, so you never need to push it to Git.
+1. Sign in to Render and click **New +** → **Web Service**.
+2. Connect your GitHub repository and configure:
+   | Field | Value |
+   |---|---|
+   | **Name** | `cinexus-backend` |
+   | **Environment** | `Python 3` |
+   | **Region** | Singapore (or closest to you) |
+   | **Build Command** | `pip install -r backend/requirements.txt && pip install kaggle && kaggle datasets download ggtejas/tmdb-imdb-merged-movies-dataset --unzip -p data && mv data/*.csv data/400K_Movies.csv` |
+   | **Start Command** | `cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT` |
+   | **Instance Type** | Free |
+3. Add the following environment variable:
+   | Key | Value |
+   |---|---|
+   | `KAGGLE_API_TOKEN` | Your Kaggle API token (starts with `KGAT_`) |
+4. Click **Create Web Service** and wait for the build to finish. Copy the live URL (e.g. `https://cinexus-backend-xxxx.onrender.com`).
+
+### 2. Frontend (Static Site)
+
+1. Click **New +** → **Static Site**.
+2. Connect the same repository and configure:
+   | Field | Value |
+   |---|---|
+   | **Name** | `cinexus-frontend` |
+   | **Build Command** | `npm install --prefix frontend && npm run build --prefix frontend` |
+   | **Publish Directory** | `frontend/dist` |
+3. Add the following environment variables:
+   | Key | Value |
+   |---|---|
+   | `VITE_API_URL` | The backend URL you copied above |
+   | `VITE_TMDB_API_KEY` | Your TMDB API key |
+4. Click **Create Static Site**.
+
+> **Note:** The 279 MB dataset is `.gitignored` to comply with GitHub's file size limits. The build command automatically downloads it from Kaggle, so you never need to push it to Git.
 
 ## 📄 License
 

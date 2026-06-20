@@ -22,7 +22,7 @@ export default function App() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Search TMDB for the given query and fetch recommendations based on the result
+  // Send the query to the FastAPI backend and display content-based recommendations
   async function handleRecommend() {
     if (!query.trim()) return;
     setLoading(true);

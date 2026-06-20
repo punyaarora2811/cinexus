@@ -2,8 +2,6 @@ const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const BASE = 'https://api.themoviedb.org/3';
 const IMG = 'https://image.tmdb.org/t/p/w500';
 
-
-
 // Convert raw TMDB movie object into card format
 function toCard(movie) {
   return {
@@ -14,7 +12,7 @@ function toCard(movie) {
   };
 }
 
-// Fetch 10 currently popular movies
+// Fetch 10 currently popular movies from TMDB's public API
 export async function fetchPopular() {
   const res = await fetch(
     `${BASE}/movie/popular?api_key=${API_KEY}&language=en-US&page=1`
@@ -23,7 +21,7 @@ export async function fetchPopular() {
   return data.results.slice(0, 10).map(toCard);
 }
 
-// Search for a movie and fetch 10 recommendations based on it from local FastAPI backend
+// Send a movie title to the FastAPI backend and return 10 content-based recommendations
 export async function fetchRecommendations(query) {
   try {
     const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
