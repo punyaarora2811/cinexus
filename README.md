@@ -31,20 +31,23 @@ cinexus/
 │   ├── main.py                   # FastAPI application & ML pipeline
 │   └── requirements.txt          # Python dependencies
 ├── frontend/
-│   ├── public/                   # Static assets
+│   ├── public/                   # Static assets (favicon)
 │   ├── src/
 │   │   ├── components/           # Reusable React components
 │   │   ├── lib/                  # Helper functions & API utilities
-│   │   ├── styles/               # Global styling (Tailwind CSS)
+│   │   ├── styles/               # Global styling (Tailwind CSS v4)
 │   │   ├── App.jsx               # Main application component
 │   │   └── main.jsx              # React application entry point
 │   ├── .env.example              # Environment variables template
+│   ├── index.html                # HTML entry point
 │   ├── package.json              # Frontend dependencies
 │   └── vite.config.js            # Vite configuration
 ├── data/
-│   └── 400K_Movies.csv           # TMDB 400k dataset (Not included in version control)
+│   └── 400K_Movies.csv           # TMDB 400k dataset (gitignored)
+├── .gitignore
 ├── package.json                  # Root monorepo scripts
-└── README.md                     # Project documentation
+├── render.yaml                   # Render deployment blueprint
+└── README.md
 ```
 
 ## 🚀 Getting Started
@@ -64,7 +67,9 @@ git clone https://github.com/punyaarora2811/cinexus.git
 cd cinexus
 ```
 
-### 2. Download the Dataset
+### 2. Download the Dataset (Local Dev Only)
+
+> **Note:** If you're deploying to Render, skip this step — the dataset is downloaded automatically during the build.
 
 Download the TMDB 400k dataset from [Kaggle](https://www.kaggle.com/datasets/ggtejas/tmdb-imdb-merged-movies-dataset) and place it in the `data` directory:
 
@@ -90,22 +95,18 @@ npm run dev:backend
 Configure the environment variables and start the frontend application.
 
 ```bash
-# Navigate to the frontend directory
-cd frontend
-
 # Set up your environment variables
-cp .env.example .env
+cp frontend/.env.example frontend/.env
 
-# Edit .env and add your TMDB API Key:
+# Edit frontend/.env and add your TMDB API Key:
 # VITE_TMDB_API_KEY=your_api_key_here
 
 # Install dependencies and start the dev server
-cd ..
 npm run install:frontend
 npm run dev:frontend
 ```
 
-The frontend will be available at `http://localhost:5174` (or similar, check terminal output).
+The frontend will be available at `http://localhost:5173` (or similar, check terminal output).
 
 ## 🧠 How the ML Pipeline Works
 
@@ -115,6 +116,26 @@ The frontend will be available at `http://localhost:5174` (or similar, check ter
 4. **Weighted Tagging:** Constructs a master "tag" string for each movie where directors and genres are weighted 3×, keywords 2×, and overview/cast 1×.
 5. **Vectorization:** Converts the tags into a numerical matrix using TF-IDF, effectively down-weighting common tokens and boosting rare discriminative ones.
 6. **Recommendation:** Computes the closest neighbors via Cosine Similarity utilizing the K-Nearest Neighbors (KNN) algorithm.
+
+## 🚀 Deployment (Render)
+
+This project includes a [`render.yaml`](render.yaml) blueprint for one-click deployment to [Render](https://render.com).
+
+1. Push your code to GitHub.
+2. Sign in to Render and click **New > Blueprint**.
+3. Connect your repository — Render will automatically detect the blueprint and provision both services:
+   - **cinexus-backend** → Python Web Service
+   - **cinexus-frontend** → Static Site
+4. Add the following environment variable to the **cinexus-backend** service:
+   | Key | Value | Purpose |
+   |---|---|---|
+   | `KAGGLE_API_TOKEN` | Your Kaggle API token | Allows the build to download the 400K dataset automatically |
+5. Add the following environment variable to the **cinexus-frontend** service:
+   | Key | Value | Purpose |
+   |---|---|---|
+   | `VITE_TMDB_API_KEY` | Your TMDB API key | Required for fetching popular movies and poster images |
+
+> **Note:** The 279 MB dataset is `.gitignored` to comply with GitHub's file size limits. The `render.yaml` build command automatically downloads it from Kaggle, so you never need to push it to Git.
 
 ## 📄 License
 

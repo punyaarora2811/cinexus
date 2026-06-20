@@ -26,7 +26,8 @@ export async function fetchPopular() {
 // Search for a movie and fetch 10 recommendations based on it from local FastAPI backend
 export async function fetchRecommendations(query) {
   try {
-    const res = await fetch(`http://127.0.0.1:8000/api/recommend?query=${encodeURIComponent(query)}`);
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+    const res = await fetch(`${apiUrl}/api/recommend?query=${encodeURIComponent(query)}`);
     if (!res.ok) {
       if (res.status === 404) return null; // Movie not found
       throw new Error('Backend error');

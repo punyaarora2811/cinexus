@@ -1,0 +1,27 @@
+services:
+  # Backend Web Service
+  - type: web
+    name: cinexus-backend
+    env: python
+    buildCommand: "pip install -r backend/requirements.txt && pip install kaggle && kaggle datasets download ggtejas/tmdb-imdb-merged-movies-dataset --unzip -p data && mv data/*.csv data/400K_Movies.csv"
+    startCommand: "cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.0
+      - key: KAGGLE_API_TOKEN
+        sync: false
+
+  # Frontend Static Site
+  - type: web
+    name: cinexus-frontend
+    env: static
+    buildCommand: "npm install --prefix frontend && npm run build --prefix frontend"
+    staticPublishPath: "./frontend/dist"
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: cinexus-backend
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: VITE_TMDB_API_KEY
+        sync: false

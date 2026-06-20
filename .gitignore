@@ -7,12 +7,15 @@ data/
 .ipynb_checkpoints/
 __pycache__/
 
-# Python env
+# Python & Environment vars
 venv/
-.env
+env/
+**/.env
+**/.env.*
+!**/.env.example
 
-# Frontend — build output and dependencies
-frontend/node_modules/
+# Dependencies & build output
+node_modules/
 frontend/dist/
 frontend/dist-ssr/
 *.local
@@ -31,3 +34,6 @@ frontend/dist-ssr/
 # OS
 .DS_Store
 Thumbs.db
+
+# Gemini
+.gemini/
