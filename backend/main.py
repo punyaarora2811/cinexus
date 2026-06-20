@@ -1,4 +1,4 @@
-import numpy as np
+import gc
 import pandas as pd
 from nltk.stem.porter import PorterStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -17,14 +17,24 @@ app.add_middleware(
 )
 
 print("Loading dataset...")
-# Load dataset
-raw_movies = pd.read_csv('../data/400K_Movies.csv')
+# Load only the columns we need to save memory
+raw_movies = pd.read_csv(
+    '../data/400K_Movies.csv',
+    usecols=['id', 'title', 'overview', 'genres', 'keywords', 'directors', 'cast', 'poster_path', 'vote_average']
+)
 
-# Retain columns needed for ML and API response
-movies = raw_movies[['id', 'title', 'overview', 'genres', 'keywords', 'directors', 'cast', 'poster_path', 'vote_average']].copy()
+# Handle missing values and drop duplicates
+movies = raw_movies.fillna('').drop_duplicates(subset='id')
+del raw_movies
+gc.collect()
 
-# Handle missing values
-movies = movies.fillna('').drop_duplicates()
+# Filter out movies with no meaningful content (empty overview AND empty genres)
+# These rows add noise and waste memory without contributing to recommendations
+movies = movies[
+    (movies['overview'].str.strip() != '') | (movies['genres'].str.strip() != '')
+].reset_index(drop=True)
+
+print(f"Working with {len(movies)} movies after filtering...")
 
 # Split comma-separated columns into lists and collapse multi-word names (e.g. "Tom Hanks" -> "TomHanks")
 movies['genres']    = movies['genres'].apply(lambda x: [i.strip().replace(' ', '') for i in str(x).split(',') if i.strip()])
@@ -48,6 +58,10 @@ movies['tags'] = (
 )
 movies['tags'] = movies['tags'].apply(lambda x: ' '.join(x).lower())
 
+# Drop intermediate columns to free memory — only keep what we need for API responses and search
+movies = movies.drop(columns=['overview', 'genres', 'keywords', 'directors', 'cast'])
+gc.collect()
+
 print("Vectorizing...")
 tv = TfidfVectorizer(
     max_features=10000,
@@ -56,6 +70,10 @@ tv = TfidfVectorizer(
 )
 vectors = tv.fit_transform(movies['tags'])
 
+# Drop tags column after vectorization — no longer needed
+movies = movies.drop(columns=['tags'])
+gc.collect()
+
 print("Fitting KNN...")
 nn = NearestNeighbors(
     n_neighbors=11,
@@ -63,7 +81,7 @@ nn = NearestNeighbors(
     algorithm='brute'
 )
 nn.fit(vectors)
-print("Backend ready.")
+print(f"Backend ready. Memory-optimized with {len(movies)} movies.")
 
 @app.get("/api/recommend")
 def recommend(query: str):
