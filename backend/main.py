@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.neighbors import NearestNeighbors
@@ -21,9 +22,13 @@ app.add_middleware(
 
 print("Loading pre-cleaned dataset...")
 
+# Dynamically find path relative to this script so it works from any directory
+base_dir = os.path.dirname(os.path.abspath(__file__))
+dataset_path = os.path.join(base_dir, '../data/50K_Movies.csv')
+
 # Load the pre-processed dataset which already has the 'tags' column built
 movies = pd.read_csv(
-    '../data/50K_Movies_Cleaned.csv',
+    dataset_path,
     usecols=['id', 'title', 'poster_path', 'vote_average', 'tags']
 )
 

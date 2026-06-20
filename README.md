@@ -43,7 +43,7 @@ cinexus/
 │   ├── package.json              # Frontend dependencies
 │   └── vite.config.js            # Vite configuration
 ├── data/
-│   └── 50K_Movies_Cleaned.csv    # Pre-cleaned, lightweight dataset
+│   └── 50K_Movies.csv            # Pre-cleaned, lightweight dataset
 ├── .gitignore
 ├── package.json                  # Root monorepo scripts
 ├── render.yaml                   # Render deployment blueprint
@@ -69,7 +69,7 @@ cd cinexus
 
 ### 2. Dataset
 
-The repository already includes the `50K_Movies_Cleaned.csv` in the `data/` directory. It contains the top 50,000 highest-rated movies with pre-computed features for lightning-fast ML modeling. No extra downloads needed!
+The repository already includes the `50K_Movies.csv` in the `data/` directory. It contains the top 50,000 highest-rated movies with pre-computed features for lightning-fast ML modeling. No extra downloads needed!
 
 ### 3. Backend Setup (FastAPI & ML)
 
